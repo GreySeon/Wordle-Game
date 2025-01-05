@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Wordle.MainPage"
+             Title="Wordle Game">
+
+    <StackLayout Padding="20" Spacing="10">
+        <!-- Title -->
+        <Label Text="Wordle" 
+               FontSize="32" 
+               HorizontalOptions="Center" />
+
+        <!-- Guess Grid -->
+        <Grid x:Name="GuessGrid" 
+              RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" 
+              ColumnDefinitions="*,*,*,*,*"
+              BackgroundColor="LightGray"
+              Padding="10">
+            <!-- Placeholder grid setup -->
+            <!-- Dynamically populated in code -->
+        </Grid>
+
+        <!-- Input and Submit Button -->
+        <StackLayout Orientation="Horizontal" Spacing="10">
+            <Entry x:Name="GuessEntry" 
+                   Placeholder="Enter a 5-letter word" 
+                   Keyboard="Text"
+                   MaxLength="5" 
+                   HorizontalOptions="FillAndExpand" />
+            <Button Text="Submit" 
+                    x:Name="SubmitButton"
+                    Clicked="SubmitButton_Clicked" />
+        </StackLayout>
+
+        <!-- Feedback Message -->
+        <Label x:Name="FeedbackLabel" 
+               TextColor="DarkGreen" 
+               FontSize="16" 
+               HorizontalOptions="Center" 
+               IsVisible="False" />
+    </StackLayout>
+
+</ContentPage>

@@ -2,42 +2,36 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Wordle.MainPage"
-             Title="Wordle Game">
+             Title="Wordle">
 
-    <StackLayout Padding="20" Spacing="10">
-        <!-- Title -->
-        <Label Text="Wordle" 
-               FontSize="32" 
-               HorizontalOptions="Center" />
+    <ScrollView>
+        <VerticalStackLayout Padding="10" Spacing="15">
+            <!-- Guess Grid -->
+            <StackLayout x:Name="GuessContainer"
+                         Spacing="10"
+                         HorizontalOptions="Center" />
 
-        <!-- Guess Grid -->
-        <Grid x:Name="GuessGrid" 
-              RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" 
-              ColumnDefinitions="*,*,*,*,*"
-              BackgroundColor="LightGray"
-              Padding="10">
-            <!-- Placeholder grid setup -->
-            <!-- Dynamically populated in code -->
-        </Grid>
+            <!-- Submit Button -->
+            <Button Text="Submit Guess"
+                    x:Name="SubmitGuessButton"
+                    Clicked="SubmitGuessButton_Clicked"
+                    HorizontalOptions="Center" />
 
-        <!-- Input and Submit Button -->
-        <StackLayout Orientation="Horizontal" Spacing="10">
-            <Entry x:Name="GuessEntry" 
-                   Placeholder="Enter a 5-letter word" 
-                   Keyboard="Text"
-                   MaxLength="5" 
-                   HorizontalOptions="FillAndExpand" />
-            <Button Text="Submit" 
-                    x:Name="SubmitButton"
-                    Clicked="SubmitButton_Clicked" />
-        </StackLayout>
+            <!-- Feedback -->
+            <Label x:Name="FeedbackLabel"
+                   Text=""
+                   FontSize="16"
+                   TextColor="Red"
+                   IsVisible="False"
+                   HorizontalOptions="Center" />
 
-        <!-- Feedback Message -->
-        <Label x:Name="FeedbackLabel" 
-               TextColor="DarkGreen" 
-               FontSize="16" 
-               HorizontalOptions="Center" 
-               IsVisible="False" />
-    </StackLayout>
+            <!-- New Game Button -->
+            <Button Text="Start New Game"
+                    x:Name="NewGameButton"
+                    Clicked="NewGameButton_Clicked"
+                    IsVisible="True"
+                    HorizontalOptions="Center" />
+        </VerticalStackLayout>
+    </ScrollView>
 
 </ContentPage>

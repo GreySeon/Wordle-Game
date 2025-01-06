@@ -8,5 +8,13 @@
 
             MainPage = new AppShell();
         }
+        protected override Window CreateWindow(IActivationState activationState)
+        {
+            var window = base.CreateWindow(activationState);
+            window.MinimumHeight = 300;
+            window.MinimumWidth = 300;
+            return window;
+        }
+
     }
 }

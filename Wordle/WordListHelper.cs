@@ -1,8 +1,4 @@
-﻿using System.Net.Http;
-using System.IO;
-using System.Threading.Tasks;
-
-namespace Wordle
+﻿namespace Wordle
 {
     public static class WordListHelper
     {

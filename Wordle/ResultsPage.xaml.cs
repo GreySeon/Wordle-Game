@@ -2,8 +2,9 @@ namespace Wordle;
 
 public partial class ResultsPage : ContentPage
 {
-	public ResultsPage()
+    public ResultsPage()
 	{
 		InitializeComponent();
-	}
+    }
+
 }

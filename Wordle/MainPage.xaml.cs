@@ -97,7 +97,7 @@ namespace Wordle
                     VerticalTextAlignment = TextAlignment.Center,
                     FontSize = 18,
                     TextColor = Colors.Black,
-                    BackgroundColor = Colors.White
+                    BackgroundColor = Colors.LightGray
                 });
             }
 
@@ -211,6 +211,7 @@ namespace Wordle
                 GameTimer = null;
             }
         }
+
     }
 
 }

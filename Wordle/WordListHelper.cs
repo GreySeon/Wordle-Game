@@ -7,6 +7,7 @@
 
         public static async Task EnsureWordListAsync(string fileUrl)
         {
+            // Download the file from the internet if it doesn't exist
             if (!File.Exists(FilePath))
             {
                 await DownloadAndSaveFileAsync(fileUrl);
@@ -16,10 +17,8 @@
         private static async Task DownloadAndSaveFileAsync(string fileUrl)
         {
             using HttpClient httpClient = new();
-            string wordListContent = await httpClient.GetStringAsync(fileUrl);
-
-            // Save the content to a file
-            await File.WriteAllTextAsync(FilePath, wordListContent);
+            string wordListContent = await httpClient.GetStringAsync(fileUrl);      
+            await File.WriteAllTextAsync(FilePath, wordListContent); // Save the content to a file
         }
 
         public static async Task<string[]> GetWordListAsync()

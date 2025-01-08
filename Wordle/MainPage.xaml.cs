@@ -1,18 +1,17 @@
-﻿using Microsoft.Maui.Dispatching;
+﻿using Plugin.Maui.Audio;
 
 namespace Wordle
 {
     public partial class MainPage : ContentPage
     {
+        // Declaring global variables
         private const int MaxAttempts = 6;
         private string WordToGuess;
-        private string PreviousWord;
         private int CurrentAttempt = 0;
-        private int CurrentRow = 0;
         private const string WordListUrl = "https://raw.githubusercontent.com/DonH-ITS/jsonfiles/main/words.txt";
-        private DateTime StartTime;
         private IDispatcherTimer GameTimer;
         private TimeSpan ElapsedTime;
+        private IAudioPlayer AudioPlayer;
 
         public MainPage()
         {
@@ -25,14 +24,11 @@ namespace Wordle
         {
             try
             {
-                // Ensure the word list file exists
-                await WordListHelper.EnsureWordListAsync(WordListUrl);
+                await WordListHelper.EnsureWordListAsync(WordListUrl); // Ensure the word list file exists
 
                 // Load the word list and pick a random word
                 string[] words = await WordListHelper.GetWordListAsync();
                 WordToGuess = SelectRandomWord(words);
-
-                Console.WriteLine($"Word to guess (for debugging): {WordToGuess}");
             }
             catch (Exception ex)
             {
@@ -44,9 +40,11 @@ namespace Wordle
 
         private string SelectRandomWord(string[] words)
         {
+            // Check if the word list exists
             if (words == null || words.Length == 0)
                 throw new InvalidOperationException("The word list is empty or null.");
 
+            // Choose the word using built-in randomiser
             Random random = new();
             int randomIndex = random.Next(words.Length);
             return words[randomIndex].ToUpper(); // Uppercase for consistency
@@ -62,8 +60,9 @@ namespace Wordle
             StartTimer();
         }
 
-        private void GenerateNewRow()
+        private async void GenerateNewRow()
         {
+            // End the game (over) and don't allow for the next row to be created
             if (CurrentAttempt >= MaxAttempts)
             {
                 FeedbackLabel.Text = $"Game Over! The correct word was {WordToGuess}.";
@@ -71,15 +70,20 @@ namespace Wordle
                 FeedbackLabel.IsVisible = true;
                 SubmitGuessButton.IsEnabled = false;
                 StopTimer();
+                AudioPlayer = AudioManager.Current.CreatePlayer(await FileSystem.OpenAppPackageFileAsync("loss.mp3"));
+                AudioPlayer.Play();
                 return;
             }
 
+            // Creating the row for entries
             var row = new HorizontalStackLayout
             {
                 Spacing = 5,
-                HorizontalOptions = LayoutOptions.Center
+                HorizontalOptions = LayoutOptions.Center,
+                Opacity = 0 // For animation to work properly
             };
 
+            // Adding 5 similar entries for each letter
             for (int i = 0; i < 5; i++)
             {
                 row.Children.Add(new Entry
@@ -95,11 +99,14 @@ namespace Wordle
             }
 
             GuessContainer.Children.Add(row);
+            await row.FadeTo(1, 1000);
         }
 
-        private void SubmitGuessButton_Clicked(object sender, EventArgs e)
+        private async void SubmitGuessButton_Clicked(object sender, EventArgs e)
         {
             FeedbackLabel.IsVisible = false;
+
+            // Cancel the task if all guesses were made
             if (CurrentAttempt >= MaxAttempts)
                 return;
 
@@ -107,6 +114,7 @@ namespace Wordle
             var row = GuessContainer.Children[CurrentAttempt] as HorizontalStackLayout;
             var entries = row?.Children.OfType<Entry>().ToArray();
 
+            // Check for all entries to have a letter
             if (entries == null || entries.Length != 5)
                 return;
 
@@ -119,7 +127,7 @@ namespace Wordle
                 return;
             }
 
-            // Update feedback for each letter
+            // Update colours for each letter
             for (int i = 0; i < 5; i++)
             {
                 var entry = entries[i];
@@ -139,6 +147,7 @@ namespace Wordle
                 entry.IsEnabled = false;
             }
 
+            // In case of win
             if (guess == WordToGuess)
             {
                 FeedbackLabel.Text = "Congratulations! You guessed the word!";
@@ -146,6 +155,8 @@ namespace Wordle
                 FeedbackLabel.IsVisible = true;
                 SubmitGuessButton.IsEnabled = false;
                 StopTimer();
+                AudioPlayer = AudioManager.Current.CreatePlayer(await FileSystem.OpenAppPackageFileAsync("win.mp3"));
+                AudioPlayer.Play();
                 return;
             }
 
@@ -157,27 +168,27 @@ namespace Wordle
         {
             StartNewGame();
             SubmitGuessButton.IsEnabled = true;
-            StopTimer();
-            StartTimer();
+            StopTimer(); // Stop the previous timer
+            StartTimer(); // Start a new one
         }
 
         private void StartTimer()
         {
-            StopTimer();
+            StopTimer(); // Stop the current timer if it is running
 
             if (Dispatcher == null)
                 return;
 
             ElapsedTime = TimeSpan.Zero; // Reset elapsed time to zero
-            GameTimer = Dispatcher.CreateTimer();
-            GameTimer.Interval = TimeSpan.FromSeconds(1);
+            GameTimer = Dispatcher.CreateTimer(); // Create the timer instance
+            GameTimer.Interval = TimeSpan.FromSeconds(1); // with interval being 1 second
             GameTimer.Tick += UpdateTimer;
             GameTimer.Start();
         }
 
         private void UpdateTimer(object sender, EventArgs e)
         {
-            ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(1)); // Increment elapsed time
+            ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(1)); // Increment elapsed time for 1
             TimerLabel.Text = $"Time: {ElapsedTime:mm\\:ss}";
         }
 

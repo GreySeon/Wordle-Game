@@ -1,12 +1,18 @@
-﻿namespace Wordle
+﻿using Microsoft.Maui.Dispatching;
+
+namespace Wordle
 {
     public partial class MainPage : ContentPage
     {
         private const int MaxAttempts = 6;
         private string WordToGuess;
+        private string PreviousWord;
         private int CurrentAttempt = 0;
         private int CurrentRow = 0;
         private const string WordListUrl = "https://raw.githubusercontent.com/DonH-ITS/jsonfiles/main/words.txt";
+        private DateTime StartTime;
+        private IDispatcherTimer GameTimer;
+        private TimeSpan ElapsedTime;
 
         public MainPage()
         {
@@ -15,7 +21,7 @@
             StartNewGame();
         }
 
-        private async void InitializeGame()
+        private async Task InitializeGame()
         {
             try
             {
@@ -46,13 +52,14 @@
             return words[randomIndex].ToUpper(); // Uppercase for consistency
         }
 
-        private void StartNewGame()
+        private async void StartNewGame()
         {
             CurrentAttempt = 0;
             GuessContainer.Children.Clear();
             FeedbackLabel.IsVisible = false;
-
+            await InitializeGame();
             GenerateNewRow();
+            StartTimer();
         }
 
         private void GenerateNewRow()
@@ -63,6 +70,7 @@
                 FeedbackLabel.TextColor = Colors.Red;
                 FeedbackLabel.IsVisible = true;
                 SubmitGuessButton.IsEnabled = false;
+                StopTimer();
                 return;
             }
 
@@ -137,6 +145,7 @@
                 FeedbackLabel.TextColor = Colors.Green;
                 FeedbackLabel.IsVisible = true;
                 SubmitGuessButton.IsEnabled = false;
+                StopTimer();
                 return;
             }
 
@@ -148,6 +157,38 @@
         {
             StartNewGame();
             SubmitGuessButton.IsEnabled = true;
+            StopTimer();
+            StartTimer();
+        }
+
+        private void StartTimer()
+        {
+            StopTimer();
+
+            if (Dispatcher == null)
+                return;
+
+            ElapsedTime = TimeSpan.Zero; // Reset elapsed time to zero
+            GameTimer = Dispatcher.CreateTimer();
+            GameTimer.Interval = TimeSpan.FromSeconds(1);
+            GameTimer.Tick += UpdateTimer;
+            GameTimer.Start();
+        }
+
+        private void UpdateTimer(object sender, EventArgs e)
+        {
+            ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(1)); // Increment elapsed time
+            TimerLabel.Text = $"Time: {ElapsedTime:mm\\:ss}";
+        }
+
+        private void StopTimer()
+        {
+            if (GameTimer != null)
+            {
+                GameTimer.Stop();
+                GameTimer.Tick -= UpdateTimer;
+                GameTimer = null;
+            }
         }
     }
 

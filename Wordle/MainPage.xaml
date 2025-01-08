@@ -6,6 +6,13 @@
 
     <ScrollView>
         <VerticalStackLayout Padding="10" Spacing="15">
+            <!-- Timer -->
+            <Label x:Name="TimerLabel"
+                   Text="Time: 00:00"
+                   FontSize="18"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center" />
+            
             <!-- Guess Grid -->
             <StackLayout x:Name="GuessContainer"
                          Spacing="10"

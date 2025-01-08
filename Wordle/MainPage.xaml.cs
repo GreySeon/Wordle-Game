@@ -70,8 +70,11 @@ namespace Wordle
                 FeedbackLabel.IsVisible = true;
                 SubmitGuessButton.IsEnabled = false;
                 StopTimer();
-                AudioPlayer = AudioManager.Current.CreatePlayer(await FileSystem.OpenAppPackageFileAsync("loss.mp3"));
-                AudioPlayer.Play();
+                if (!AppShell.IsSoundMuted) // Check if sounds are muted
+                {
+                    AudioPlayer = AudioManager.Current.CreatePlayer(await FileSystem.OpenAppPackageFileAsync("loss.mp3"));
+                    AudioPlayer.Play();
+                }
                 return;
             }
 
@@ -155,8 +158,11 @@ namespace Wordle
                 FeedbackLabel.IsVisible = true;
                 SubmitGuessButton.IsEnabled = false;
                 StopTimer();
-                AudioPlayer = AudioManager.Current.CreatePlayer(await FileSystem.OpenAppPackageFileAsync("win.mp3"));
-                AudioPlayer.Play();
+                if (!AppShell.IsSoundMuted) // Check if sounds are muted
+                {
+                    AudioPlayer = AudioManager.Current.CreatePlayer(await FileSystem.OpenAppPackageFileAsync("win.mp3"));
+                    AudioPlayer.Play();
+                }
                 return;
             }
 
@@ -189,7 +195,11 @@ namespace Wordle
         private void UpdateTimer(object sender, EventArgs e)
         {
             ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(1)); // Increment elapsed time for 1
-            TimerLabel.Text = $"Time: {ElapsedTime:mm\\:ss}";
+            // Caused by a bug, need to ensure that it happens on a main thread
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                TimerLabel.Text = $"Time: {ElapsedTime:mm\\:ss}";
+            });
         }
 
         private void StopTimer()
